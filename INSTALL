@@ -1,0 +1,5 @@
+Make a jar folder with the following contents:
+clojure.jar
+clojure-contrib.jar
+lwjgl.jar
+
