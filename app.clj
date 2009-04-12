@@ -2,24 +2,35 @@
   (:import (org.lwjgl.input Keyboard)
 	   (org.lwjgl.opengl Display))
   (:require [gl]
-	    [gl.sprite :as sprite]
 	    [resource]
+	    [animation]
+	    [draw]
+	    [sprite]
 	    [clojure.contrib.test-is])
   (:gen-class))
 
-(declare im-red0)
+(declare red0)
 
 (defn start-fn [init]
   (resource/add-location "image")
   (gl/set-size 400 300)
   (gl/set-fullscreen false)
   (init)
-  (def im-red0 (resource/grab "red0.png")))
+  (animation/make :red0 "red0-%d.png" (range 4))
+  (def red0 (sprite/make :red0 (- 200 16) (- 150 16))))
 
 (defn loop-fn []
   (gl/clear 0.7 0.9 0.34)
-  (sprite/draw im-red0 0 0)
+  (draw/draw red0)
+  (sprite/advance red0)
+  (if (= (red0 :frame) 0)
+    (sprite/set-frame red0 2))
+  (sprite/move red0 -1 0)
+  (if (<= (red0 :x) -32)
+    (sprite/move red0 432 0))
   (not (gl/quit?)))
 
 (defn -main []
-  (gl/run start-fn loop-fn))
+  (doto (Thread. #(gl/run start-fn loop-fn))
+    (.start)))
+		 

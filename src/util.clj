@@ -14,3 +14,13 @@
 (defmethod ->File String [#^String s] (File. s))
 (defmethod ->String File [#^File f] f)
 
+(defn tag
+  "Returns the tag on an object."
+  [obj]
+  (^obj :tag))
+
+(defn pass-first
+  "Passes a function the first argument, ignoring the rest."
+  [fun]
+  (fn [arg & ignore]
+    (fun arg)))

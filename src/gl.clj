@@ -10,7 +10,10 @@
 ;; State of the gl.
 (defstate state :off)
 (defaction state :off #(Display/destroy))
+(defref state :off running false
+  "Whether or not gl is running.")
 (defaction state :on #(Display/create))
+(defref state :on running true)
 
 ;; Generic gl actions.
 (defn clear
@@ -34,6 +37,11 @@
     [(.getWidth disp),
      (.getHeight disp)]))
 
+(defn set-fps
+  "Sets the fps."
+  [new-fps]
+  (dosync (ref-set fps new-fps)))
+
 (defn set-size
   "Sets the size of the display."
   [width height]
@@ -54,17 +62,18 @@
   
 (defn run
   "Starts the main gl loop.
-  Start should take a single argument.  This shall be a
+  Start-fn should take a single argument.  This shall be a
   function of no arguments that initializes gl.  Do all
   pre-initalization code beforehand, then call it, then
   perform all post-initialization code.
   Loop-fn is called on every iteration.  If it returns
   false, the loop exits."
-  [start loop-fn]
-  (start #(set-state state :on))
-  (loop []
-    (Display/update)
-    (if (loop-fn)
-      (do (Display/sync @fps)
-	  (recur))
-      (set-state state :off))))
+  [start-fn loop-fn]
+  (when (not @running)
+    (start-fn #(set-state state :on))
+    (loop []
+      (Display/update)
+      (if (loop-fn)
+	(do (Display/sync @fps)
+	    (recur))
+	(set-state state :off)))))

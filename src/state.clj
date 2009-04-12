@@ -1,6 +1,7 @@
 (ns state
   (:import (clojure.lang Agent Ref))
-  (:use [clojure.contrib.test-is]))
+  (:use [clojure.contrib.test-is]
+	[clojure.contrib.def]))
 
 (defmacro defstate
   "Defines a state variable."
@@ -26,6 +27,10 @@
 
 (defmacro defref
   "Defines a ref that can be adjutsed by state."
+  ([state value ref-name ref-val docstring]
+     `(do (when-not ~((ns-map *ns*) ref-name)
+	    (defvar ~ref-name (ref ~ref-val) ~docstring))
+	  ~(list `add-event state value ref-name ref-val)))
   ([state value ref-name ref-val]
      `(do (when-not ~((ns-map *ns*) ref-name)
 	    (def ~ref-name (ref ~ref-val)))
