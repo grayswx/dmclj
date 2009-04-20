@@ -2,6 +2,7 @@
   (:import (org.lwjgl.input Keyboard)
 	   (org.lwjgl.opengl Display))
   (:require [gl]
+	    [gl.tex :as tex]
 	    [resource]
 	    [animation]
 	    [draw]

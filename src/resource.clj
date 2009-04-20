@@ -26,17 +26,6 @@
   (dosync
    (alter directories conj new-dir)))
 
-(defn- list-files
-  "Takes a printf style string and returns the result of
-  applying the format string to a each of the values in
-  any supplied collections.
-  Ex: (list-files \"<%d%s>\" (range 3) ['a 'b 'c])
-  Returns (\"<0a>\" \"<1b>\" \"<2c>\")."
-  [string arglist]
-  (apply map (fn [& arglist2]
-	       (apply format string arglist2))
-	 arglist))
-
 (defn- #^File find-file
   "Finds the given file in one of the directories.
   Returns nil if no file can be found."
@@ -56,10 +45,10 @@
 
 (defmulti create
   "Creates a resource from a file."
-  find-type)
+  (pass-first find-type))
 (defmethod create :image
   [#^File file]
-  #^:image (gl.tex/load-tex file))
+  (->Image file))
 
 ;; Public functions.
 
@@ -84,8 +73,7 @@
   "Finds an interned resource.
   Returns nil if resource does not exist."
   [name]
-  (if-let [target (resources name)]
-    target))
+  (resources name))
 
 (defn grab
   "Grabs an interned resource, loading it if needed.

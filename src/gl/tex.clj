@@ -7,7 +7,8 @@
 	   (javax.imageio ImageIO)
 	   (org.lwjgl.opengl GL11 OpenGLException)
 	   (org.apache.sanselan Sanselan))
-  (:use util
+  (:require [resource :as rsrc])
+  (:use [util]
 	[clojure.contrib.def]))
 
 (defvar- color-model
@@ -92,12 +93,14 @@
     [id (.getWidth im) (.getHeight im)]))
 
 ;; Loads a texture.
-(defmulti load-tex #(class %))
-(defmethod load-tex String [s]
-  (load-tex (new File s)))
-(defmethod load-tex File [f]
-  (load-tex (Sanselan/getBufferedImage f)))
-(defmethod load-tex BufferedImage [img]
-  (make-texture img))
-
+(defn grab
+  "Gets a texture through the resource lib."
+  ([name]
+     (let [tex-name (str "tex://" name)]
+       (if-let [target (rsrc/find tex-name)]
+	 target
+	 (rsrc/intern tex-name 
+		      (make-texture (rsrc/grab name))))))
+  ([format & args]
+     (map gl.tex/grab (list-files format args))))
 
